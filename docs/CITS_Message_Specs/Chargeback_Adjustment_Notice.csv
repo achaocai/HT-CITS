@@ -1,0 +1,6 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+adjustment_id,string,36,Y,调整ID
+original_settlement_id,string,36,Y,原结算ID
+amount,decimal,20,Y,调整金额
+reason,string,500,Y,调整原因
+effective_date,date,10,N,生效日期

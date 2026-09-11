@@ -1,0 +1,9 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+receipt_id,string,36,Y,接收回执ID（关联字段）,"rec-20260911-0001"
+batch_id,string,50,Y,批次ID,"batch-20260911-0001"
+entries,object,,Y,逐笔处理结果的数组,
+entries.transaction_id,string,36,Y,交易ID,"tx-0001"
+entries.status,string,20,Y,处理状态（ACCEPTED/REJECTED/EXCEPTION）,"ACCEPTED"
+entries.reject_code,string,10,N,拒收码（如有）,"2201"
+entries.reject_reason,string,500,N,拒收理由说明,"Image quality too low"
+processing_timestamp,datetime,30,Y,处理完成时间,"2026-09-11T09:00:00Z"

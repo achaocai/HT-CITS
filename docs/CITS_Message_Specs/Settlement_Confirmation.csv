@@ -1,0 +1,5 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+settlement_id,string,36,Y,结算ID（关联）,"settle-20260911-0001"
+status,string,20,Y,结算状态（COMPLETED/FAILED/PENDING）,"COMPLETED"
+timestamp,datetime,30,Y,确认时间,"2026-09-11T17:05:00Z"
+failure_reason,string,500,N,若失败，列明原因

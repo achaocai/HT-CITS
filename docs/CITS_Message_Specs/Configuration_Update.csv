@@ -1,0 +1,6 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+config_id,string,36,Y,配置变更ID
+effective_date,date,10,Y,生效日期
+change_summary,string,1000,Y,变更摘要
+full_spec_url,string,500,N,完整规范URL
+migration_instructions,string,2000,N,迁移说明

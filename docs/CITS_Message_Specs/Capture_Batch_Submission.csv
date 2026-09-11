@@ -1,0 +1,26 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+message_id,string,36,Y,全局唯一消息ID（UUID）,"uuid-msg-0001"
+batch_id,string,50,Y,批次ID，由发送方生成,"batch-20260911-0001"
+sender_bank_code,string,20,Y,发送行代码（清算所分配）,"BANKA"
+sender_branch_id,string,20,N,发送网点/分行ID,"BR001"
+capture_time,datetime,30,Y,影像捕获时间，ISO8601,"2026-09-11T08:15:30Z"
+spec_version,string,10,Y,规范版本号,"1.0"
+batch_hash,string,64,Y,整批消息哈希（SHA-256）,"sha256-of-batch"
+signature,string,,Y,消息数字签名（Base64）,"base64-signature"
+
+# Transaction-level fields (repeatable)
+transaction_id,string,36,Y,交易ID（UUID）,"tx-0001"
+check_number,string,30,Y,支票号码,"123456"
+amount,decimal,20,Y,金额（小数）,"1250.00"
+currency,string,3,Y,货币代码（ISO 4217）,"HKD"
+issue_date,date,10,Y,出票日期,"2026-09-10"
+payer_bank_code,string,20,Y,出票行代码,"BANKA"
+payee_bank_code,string,20,Y,收款行代码,"BANKB"
+account_number_masked,string,32,N,付款账户号（可掩码）,"********1234"
+images,object,,Y,影像列表（front/back），见子字段,
+images.side,string,10,Y,影像面别(front/back),"front"
+images.filename,string,200,Y,影像文件名或引用,"BANKA_0001_front.tif"
+images.sha256,string,64,Y,影像哈希（SHA-256）,"abcd..."
+images.dpi,integer,4,N,影像DPI,"300"
+images.colorMode,string,20,N,颜色模式（grayscale/color）,"grayscale"
+images.url,string,500,N,影像下载URL（预签名）,"https://s3/.../BANKA_0001_front.tif"

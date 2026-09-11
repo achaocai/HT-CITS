@@ -1,0 +1,6 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+alert_id,string,36,Y,告警ID
+suspicious_transactions,string,2000,Y,可疑交易列表/引用
+indicators,string,1000,N,可疑指标说明（签章/金额异常）
+suggested_action,string,500,N,建议措施（冻结/人工核查）
+contact_point,string,200,N,联系人

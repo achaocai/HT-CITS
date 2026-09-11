@@ -1,0 +1,6 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+request_id,string,36,Y,检索请求ID
+time_window,string,100,N,时间范围（ISO日期或起止）
+filters,string,1000,N,检索条件（出票行/票号等）
+delivery_channel,string,50,Y,交付渠道（SFTP/HTTPS）
+retention_link,string,200,N,归档位置引用

@@ -1,0 +1,8 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+settlement_id,string,36,Y,结算指令ID,"settle-20260911-0001"
+debit_account,string,50,Y,借方账户（结算代理/行）,"CLEAR_ACC_001"
+credit_account,string,50,Y,贷方账户,"BANKA_SETTLE_ACC"
+amount,decimal,20,Y,划拨金额,"10000.00"
+currency,string,3,Y,货币代码,"HKD"
+value_date,date,10,Y,资金生效日,"2026-09-11"
+priority,string,10,N,优先级（NORMAL/HIGH）,"NORMAL"

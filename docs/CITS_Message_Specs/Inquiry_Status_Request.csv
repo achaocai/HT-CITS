@@ -1,0 +1,6 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+query_id,string,36,Y,查询ID（UUID）","qry-0001"
+target_id,string,50,Y,目标ID（transaction/batch/settlement）,"tx-0001"
+requester_id,string,50,Y,请求方ID（银行/人员）,"BANKA_SYS"
+response_status,string,20,Y,当前状态（ACCEPTED/REJECTED/PENDING）,"ACCEPTED"
+last_update,datetime,30,N,最近更新时间

@@ -1,0 +1,7 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+incident_id,string,36,Y,事件ID（UUID）
+severity,string,10,Y,严重等级（P1/P2/P3）
+start_time,datetime,30,Y,开始时间
+estimated_recovery,datetime,30,N,预计恢复时间
+impact_scope,string,500,N,影响范围说明
+contact_point,string,200,N,联系人或SLA信息

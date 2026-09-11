@@ -1,0 +1,7 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+claim_id,string,36,Y,索赔/退票ID,"claim-0001"
+original_transaction_id,string,36,Y,原始交易ID,"tx-0001"
+claim_type,string,50,Y,索赔类型（RETURN/RECALL/ADJUST）,"RETURN"
+claim_reason,string,500,Y,索赔理由说明,"Signature mismatch"
+evidence_ref,string,500,N,证据引用（影像/文档URL）
+requested_action,string,200,N,请求的动作（退款/调整）

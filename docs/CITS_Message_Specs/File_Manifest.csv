@@ -1,0 +1,8 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+manifest_id,string,36,Y,清单ID（UUID）,"manifest-0001"
+file_name,string,500,Y,上传文件名或对象路径,"batch_20260911_0001.zip"
+file_size,integer,20,Y,文件大小（字节）
+file_hash,string,64,Y,文件哈希（SHA-256）
+upload_time,datetime,30,Y,上传时间
+access_url,string,500,N,下载URL（若使用对象存储）
+expiry,datetime,30,N,URL 过期时间

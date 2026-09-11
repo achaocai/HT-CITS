@@ -1,0 +1,7 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+orig_message_id,string,36,Y,原始消息ID（用于关联）,"uuid-msg-0001"
+receipt_id,string,36,Y,回执ID（UUID）,"rec-20260911-0001"
+status,string,10,Y,ACK 或 NACK,"ACK"
+timestamp,datetime,30,Y,回执时间,"2026-09-11T08:15:45Z"
+error_codes,string,200,N,若NACK，列出错误码及描述,"2101: MISSING_FIELD_check_number"
+notes,string,500,N,附加说明或备注,"Batch accepted for processing"

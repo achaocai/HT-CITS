@@ -1,0 +1,7 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+original_transaction_id,string,36,Y,原交易ID（UUID）,"tx-0001"
+reject_code,string,10,Y,拒收/退票码,"2201"
+reject_reason_text,string,500,Y,拒收理由说明,"Image quality not readable"
+action_required,string,200,N,建议动作（补传/人工复核）,"Resubmit clear image within 24 hours"
+dealine,datetime,30,N,要求完成时间,"2026-09-12T08:00:00Z"
+reference_image_snippet_url,string,500,N,对争议有帮助的截图或链接

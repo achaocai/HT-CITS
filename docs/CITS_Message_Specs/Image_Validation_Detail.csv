@@ -1,0 +1,7 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+transaction_id,string,36,Y,交易ID（UUID）,"tx-0001"
+front_quality_score,integer,3,Y,正面质量分（0-100）,"85"
+back_quality_score,integer,3,Y,背面质量分（0-100）,"90"
+ocr_amount,decimal,20,N,OCR 识别金额,"1250.00"
+ocr_confidence,decimal,5,N,OCR 置信度（0-1）,"0.98"
+flagged_issues,string,500,N,标记的问题列表（可多项），"blurry,light-contrast"

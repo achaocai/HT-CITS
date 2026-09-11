@@ -1,0 +1,5 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+request_id,string,36,Y,请求ID
+scope,string,1000,Y,请求范围（交易ID或时间窗）
+delivery_method,string,50,Y,交付方式（SFTP/HTTPS）
+retention_reference,string,200,N,保留策略参考

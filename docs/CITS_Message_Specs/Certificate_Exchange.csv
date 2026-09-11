@@ -1,0 +1,7 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+entity_id,string,50,Y,实体ID（银行/清算所）,"BANKA"
+cert_fingerprint,string,100,Y,证书指纹（SHA256）
+cert_valid_from,datetime,30,Y,证书生效时间
+cert_valid_to,datetime,30,Y,证书到期时间
+key_usage,string,200,N,密钥用途说明
+contact_info,string,200,N,证书联系人信息

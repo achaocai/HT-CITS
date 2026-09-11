@@ -1,0 +1,7 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+recon_date,date,10,Y,对账日期,"2026-09-11"
+batch_list,string,1000,Y,批次汇总信息（可为结构化子文件引用）,"see detailed_entries.csv"
+counts_integer,integer,10,Y,条数统计（示例字段）,"1000"
+accepted_integer,integer,10,Y,通过条数,"995"
+rejected_integer,integer,10,Y,拒收条数,"5"
+detailed_entries_ref,string,500,N,明细文件引用或URL

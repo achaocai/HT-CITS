@@ -1,0 +1,10 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+settlement_id,string,36,Y,结算批次/指令ID,"settle-20260911-0001"
+clearing_date,date,10,Y,清算日期,"2026-09-11"
+participant_set,string,500,Y,参与方清单（银行代码列表）,"BANKA;BANKB;BANKC"
+net_amounts,object,,Y,按参与方的净额列表,
+net_amounts.bank_code,string,20,Y,银行代码,"BANKA"
+net_amounts.net_amount,decimal,20,Y,净额,"-10000.00"
+currency,string,3,Y,货币代码,"HKD"
+settlement_time,datetime,30,N,计划结算时间,"2026-09-11T17:00:00Z"
+reference_ids,string,200,N,相关交易/批次引用ID集合

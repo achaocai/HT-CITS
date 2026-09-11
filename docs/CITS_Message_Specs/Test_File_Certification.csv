@@ -1,0 +1,6 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+test_id,string,36,Y,测试用例ID
+scenario_description,string,1000,Y,场景描述
+expected_result,string,1000,Y,预期结果
+sample_images,string,1000,N,示例影像引用
+verification_report,string,1000,N,验收报告引用

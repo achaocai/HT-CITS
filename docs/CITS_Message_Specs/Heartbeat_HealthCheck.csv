@@ -1,0 +1,6 @@
+Field Name,Data Type,Max Length,Required,Description,Example
+service_id,string,50,Y,服务ID或接口名,"CITS_API"
+timestamp,datetime,30,Y,心跳时间,"2026-09-11T08:00:00Z"
+status,string,20,Y,服务状态（OK/DEGRADED/DOWN）,"OK"
+version,string,20,N,服务版本号,"1.0"
+notes,string,500,N,附加信息
