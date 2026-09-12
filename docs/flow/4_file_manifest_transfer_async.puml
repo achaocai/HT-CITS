@@ -1,0 +1,19 @@
+@startuml
+title 大文件传输（Manifest）与异步处理
+
+participant Bank as "Bank\n(Scan center)"
+participant Storage as "Object Storage / SFTP"
+participant Clearing as "Clearing Hub\n(Ingest Service)"
+
+Bank -> Storage : Upload image bundle\n(batch_20260911_0001.zip)
+Storage -> Bank : Upload ACK / URL (presigned)  <<async>>
+Bank -> Clearing : File Manifest (manifest_id, file_name, file_hash, url, expiry)  <<async>>
+Clearing -> Storage : Download file (url)  <<async>>
+Storage -> Clearing : Deliver bundle (stream)  <<async>>
+Clearing -> Clearing : Unpack, verify hash, ingest images
+activate Clearing
+Clearing -> Bank : Immediate Receipt ACK (manifest_id, receipt_id)  <<sync/async>>
+Clearing -> Clearing : Enqueue transactions for QC and processing
+Clearing -> Bank : Batch Processing Result / Reject Notices  <<async>>
+deactivate Clearing
+@enduml

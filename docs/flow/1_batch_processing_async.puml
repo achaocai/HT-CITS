@@ -1,0 +1,30 @@
+@startuml
+title 批次提交与异步质量校验流程
+
+participant Bank as "Bank\n(Scanner/Capture)"
+participant Clearing as "Clearing Hub"
+participant QC as "Image QC / OCR Service"
+
+Bank -> Clearing : Capture Batch Submission\n(batch_id, transactions[], images)
+note right: Transport: HTTPS/mTLS / SFTP+Manifest
+
+Clearing -> Bank : Immediate Receipt ACK\n(receipt_id)  <<sync>>
+activate Clearing
+
+Clearing -> QC : enqueue for image validation\n(transaction_ids, image_refs)  <<async>>
+note right of QC: OCR, DPI check, hash verify, OCR vs handwritten check
+
+QC --> Clearing : Image Validation Detail\n(transaction_id, quality_score, ocr_amount, flags)  <<async>>
+Clearing -> Clearing : update transaction status based on QC results
+
+alt any transaction flagged/rejected
+  Clearing -> Bank : Batch Processing Result (entries)\n(status=REJECTED, reject_code, reason)  <<async>>
+  Bank -> Bank : operator/manual review or rescan
+  Bank -> Clearing : Capture Batch Submission (resubmit)\n(new batch_id or same with correlation)  <<async>>
+  Clearing -> Bank : Immediate Receipt ACK (for resubmit)
+else all accepted
+  Clearing -> Bank : Batch Processing Result (entries)\n(status=ACCEPTED)  <<async>>
+end
+
+deactivate Clearing
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+title 清算与结算（异步资金拨付）流程
+
+participant Clearing as "Clearing Hub\n(Clearing Engine)"
+participant BankA as "Bank A"
+participant BankB as "Bank B"
+participant Settlement as "Settlement Agent / RTGS"
+
+Clearing -> Clearing : Aggregate accepted transactions\n(clearing_date)
+Clearing -> BankA : Clearing Instruction (net position)\n(settlement_id, net_amounts)  <<async>>
+Clearing -> BankB : Clearing Instruction (net position)\n(settlement_id, net_amounts)  <<async>>
+
+note over Settlement, Clearing: Settlement Agent coordinates funds movement
+
+Settlement -> BankA : Funding / Movement Instruction\n(debit_account, amount)  <<async>>
+Settlement -> BankB : Funding / Movement Instruction\n(credit_account, amount)  <<async>>
+
+BankA -> Settlement : Execute payment / RTGS debit\n(response async)
+BankB -> Settlement : Acknowledge receipt / credit\n(response async)
+
+Settlement -> Clearing : Settlement Confirmation\n(settlement_id, status:COMPLETED/FAILED, timestamp)  <<async>>
+Clearing -> BankA : Settlement Confirmation (status)  <<async>>
+Clearing -> BankB : Settlement Confirmation (status)  <<async>>
+
+alt settlement failed
+  Clearing -> BankA : Chargeback / Adjustment Notice\n(adjustment_id, amount, reason)  <<async>>
+  BankA -> Clearing : Acknowledge / action (reconcile)  <<async>>
+end
+@enduml

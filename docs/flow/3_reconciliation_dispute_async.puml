@@ -1,0 +1,27 @@
+@startuml
+title 对账与争议处理异步流程
+
+participant Clearing as "Clearing Hub"
+participant Bank as "Bank"
+participant Auditor as "Reconciliation Service"
+
+Clearing -> Bank : Reconciliation File (day-end)\n(summary, detailed_entries_ref)  <<async>>
+Bank -> Clearing : Acknowledge receipt\n(ack_id)  <<async>>
+
+Auditor -> Bank : Bank ingests recon file\n(compare with local ledger)
+alt mismatch found
+  Bank -> Clearing : Return / Recall / Claim\n(claim_id, original_txn_id, reason, evidence_ref)  <<async>>
+  Clearing -> Bank : Acknowledge claim\n(claim_received)  <<async>>
+  Clearing -> Clearing : Investigate / reconcile with logs
+  alt claim valid
+    Clearing -> Bank : Chargeback / Adjustment Notice\n(adjustment_id, amount)  <<async>>
+    Bank -> Bank : Apply accounting adjustment
+  else claim rejected
+    Clearing -> Bank : Claim Response (rejected)\n(reason, evidence)  <<async>>
+  end
+else no mismatch
+  Bank -> Clearing : Reconciliation OK\n(confirmation)  <<async>>
+end
+
+note left: All steps logged; audit trail preserved
+@enduml
