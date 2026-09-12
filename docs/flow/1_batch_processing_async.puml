@@ -4,7 +4,6 @@ title 批次提交与异步质量校验流程（含专用采集设备与移动�
 participant Bank as "Bank\n(Core System / Teller App)"
 participant Device as "Capture Device\n(Scanner / MICR / Mobile SDK)"
 participant Clearing as "Clearing Hub"
-participant QC as "Image QC / OCR Service"
 
 == 采集与本地预检 ==
 Bank -> Device : Place cheque / invoke capture
@@ -29,10 +28,10 @@ Bank -> Clearing : Capture Batch Submission\n(batch_id, transactions[], images, 
 Clearing -> Bank : Immediate Receipt ACK\n(receipt_id)  <<sync>>
 activate Clearing
 
-Clearing -> QC : enqueue for image validation\n(transaction_ids, image_refs)  <<async>>
-note right of QC: Central OCR, DPI check, hash verify, OCR vs handwritten check
+Clearing -> Clearing : enqueue for image validation\n(transaction_ids, image_refs)  <<async>>
+note right: Central OCR, DPI check, hash verify, OCR vs handwritten check
 
-QC --> Clearing : Image Validation Detail\n(transaction_id, quality_score, ocr_amount, flags)  <<async>>
+Clearing -> Clearing : Image Validation Detail\n(transaction_id, quality_score, ocr_amount, flags)  <<async>>
 Clearing -> Clearing : update transaction status based on QC results
 
 alt any transaction flagged/rejected
