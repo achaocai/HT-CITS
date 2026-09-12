@@ -1,0 +1,36 @@
+@startuml
+title 接收 HKICL 派发与退票处理流程 / HKICL Presentment & Return Flow
+
+participant HKICL as "HKICL\n(派发文件)"
+participant System as "Bank System\n(入库/判定/退票)"
+participant Core as "Core Banking\n(账户状态与可用余额查询)"
+participant Ops as "Operations / Manual Review\n(人工复核与授权)"
+participant Collecting as "Collecting Bank\n(代收行/客户通知)"
+
+HKICL -> System : Presentment File (images + metadata)\n(午夜派发，按付款行分箱)
+activate System
+
+System -> System : Ingest & bucket by payee/payer\n存储并按付款行分箱
+System -> System : Auto-signature verification (score)\n自动验印并打分
+
+alt signature_confidence low
+  System -> Ops : Create manual review task\n人工复核任务（含影像与 OCR）
+  Ops -> System : Review result & authorization\n人工审批/授权（含注释）
+end
+
+System -> Core : Query account status & balance\n实时查账户状态/余额/止付
+Core --> System : Account status / balance / stop-pay flags
+
+System -> System : Payability decision (rules engine)\n判定可否付款（自动/人工结果/账户状态）
+alt payable
+  System -> System : Add to settlement queue\n纳入待结算池
+else not_payable
+  System -> System : Assign return_reason code\n生成退票理由码
+  System -> System : Generate IRD Return File (images + return data)\n生成退票影像包与数据（IRD）
+  System -> HKICL : Send IRD Image Return File (before return cutoff)\n回送给 HKICL（退票截止前）
+  System -> Collecting : Notify collecting bank & sync return result\n同步退票结果给代收行
+  Collecting -> Customer : Send e-return notice\n代收行通知客户并发电子退票通知书
+end
+
+deactivate System
+@enduml

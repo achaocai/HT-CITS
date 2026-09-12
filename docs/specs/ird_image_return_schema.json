@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IRD Image Return File Schema",
+  "description": "Schema for Image Return Data (IRD) file sent from Participant to HKICL when returning/returning images.",
+  "type": "object",
+  "required": ["file_id", "generated_at", "sender_id", "receiver_id", "entries"],
+  "properties": {
+    "file_id": {"type": "string", "description": "Unique ID for the IRD file"},
+    "format_version": {"type": "string", "description": "Schema/format version", "default": "1.0"},
+    "generated_at": {"type": "string", "format": "date-time", "description": "Generation timestamp (ISO8601)"},
+    "sender_id": {"type": "string", "description": "Sender (participant) identifier"},
+    "receiver_id": {"type": "string", "description": "Receiver (HKICL) identifier"},
+    "return_cutoff": {"type": "string", "format": "date-time", "description": "Return cutoff time reference"},
+    "entries": {
+      "type": "array",
+      "description": "Array of returned cheque entries",
+      "items": {
+        "type": "object",
+        "required": ["transaction_id", "presentment_id", "cheque_number", "amount", "currency", "return_code", "front_image_ref", "back_image_ref"],
+        "properties": {
+          "transaction_id": {"type": "string", "description": "Participant internal transaction id"},
+          "presentment_id": {"type": "string", "description": "Original presentment id or reference"},
+          "cheque_number": {"type": "string"},
+          "amount": {"type": "number"},
+          "currency": {"type": "string", "maxLength": 3},
+          "return_code": {"type": "string", "description": "Standardized return reason code"},
+          "return_reason_text": {"type": "string", "description": "Human readable reason"},
+          "front_image_ref": {"type": "string", "description": "URI or storage reference to front image (or inline base64)"},
+          "back_image_ref": {"type": "string", "description": "URI or storage reference to back image"},
+          "front_image_sha256": {"type": "string", "description": "SHA-256 checksum of front image"},
+          "back_image_sha256": {"type": "string"},
+          "return_timestamp": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "properties": {
+        "generated_by": {"type": "string"},
+        "system_version": {"type": "string"}
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+@startuml
+title 批次提交与异步质量校验流程 + 接收 HKICL 派发与退票处理（合并图）
+
+participant Bank as "Bank\n(收单行/代收行/柜员)"
+participant Device as "Capture Device\n(扫描器 / 移动 SDK)"
+participant Clearing as "Clearing Hub\n(入库/中央校验/清算路由)"
+participant HKICL as "HKICL\n(集中派发/接收 IRD)"
+participant Core as "Core Banking\n(账户/余额/止付查询)"
+participant Ops as "Ops / Manual Review\n(人工复核/授权)"
+
+== 柜面采集与提交 ==
+Bank -> Device : Place cheque / capture
+Device --> Bank : Capture Result (images, micr, hash, qc_flags)
+Bank -> Clearing : Capture Batch Submission (batch_id, images, metadata)
+Clearing -> Bank : Immediate Receipt ACK
+
+== Clearing 中央校验 (包含自动验印) ==
+Clearing -> Clearing : Central validation & OCR & signature check
+opt signature low confidence
+  Clearing -> Ops : create manual review task
+  Ops -> Clearing : review & auth
+end
+Clearing -> Core : query account status & balance
+Core --> Clearing : account status / stop-pay / balance
+Clearing -> Clearing : payability decision
+alt payable
+  Clearing -> Clearing : include in settlement instruction
+else not_payable
+  Clearing -> Clearing : assign return_code
+  Clearing -> Clearing : generate IRD Image Return File
+  Clearing -> HKICL : send IRD Return File (before cutoff)
+  Clearing -> Bank : notify collecting bank / sync return
+  Bank -> Customer : send e-return notice
+end
+
+== HKICL 主动派发场景（午夜 presentment） ==
+HKICL -> Clearing : Presentment File (images + metadata)
+Clearing -> Clearing : ingest & bucket by payer
+Clearing -> Clearing : automatic verification & payability decision
+... (same as above processing for returned/paid) ...
+
+@enduml
