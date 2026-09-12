@@ -1,0 +1,67 @@
+@startuml
+title 截留（Image Truncation） vs 实物交换（Physical Presentment）流程对比
+
+participant Collecting as "Collecting Bank\n收单行 / Deposit Bank"
+participant Clearing as "Clearing / HKICL\n清算中心 / HKICL"
+participant Payer as "Payer Bank\n出票行 / Payer"
+participant Core as "Core Banking\n（账户/余额/止付查询）"
+participant Courier as "Paper Courier\n纸票物流（Physical）"
+participant PaperVault as "Paper Vault\n原件保管/销毁"
+participant Settlement as "Settlement Agent\n结算代理 / RTGS"
+
+== 提交 / 派发阶段 / Submission / Presentment ==
+Collecting -> Clearing : Capture Batch Submission / Presentment File
+note right: 收单行提交影像/数据，或 HKICL 夜间派发
+
+alt 影像截留 / Image Truncation
+  Clearing -> Clearing : Image certification (digital signature, timestamp, hash)
+  note right: 影像作为等同凭证，需数字签名/时间戳/证书链
+  Clearing -> Payer : Presentment Notification (images + cert + metadata)
+  note right: 逐笔或按批 presentment 通知出票行
+
+  Payer -> Payer : Auto verification (signature matching, OCR validation)
+  Payer -> Core : Query account status / stop-pay / balance
+  Core --> Payer : Account flags / balance
+
+  alt payable
+    Payer -> Clearing : ACK / include in settlement queue
+    Clearing -> Settlement : Clearing Instruction / Settlement Instruction
+    Settlement -> Payer : Settlement Confirmation
+  else not payable
+    Payer -> Clearing : Return instruction / reason
+    Clearing -> Clearing : Generate IRD Return File (images + return_code)
+    Clearing -> HKICL : Send IRD Image Return File (before return cutoff)
+    Clearing -> Collecting : Notify return result
+    Collecting -> Customer : Send e-return notice
+  end
+
+  note over PaperVault, Clearing: 原件处理（截留时）\n- 原件可在收单行暂存并按保留期退回或销毁\n- 若争议，可能需要取回纸质原件作为证据
+  Collecting -> PaperVault : Store / request return or destroy (per policy)
+
+else 实物交换 / Physical Presentment
+  Collecting -> Courier : Dispatch physical cheque (with manifest)
+  Courier -> Payer : Deliver original cheque (paper presentment)
+  Payer -> Payer : Manual inspection (endorsement, signature, MICR, stamping)
+  Payer -> Core : Query account status / stop-pay / balance
+  Core --> Payer : Account flags / balance
+
+  alt payable
+    Payer -> Clearing : Acknowledge presentment / include in settlement
+    Clearing -> Settlement : Clearing Instruction / Settlement Instruction
+    Settlement -> Payer : Settlement Confirmation
+  else not payable
+    Payer -> Courier : Return physical cheque (with return reason)
+    Courier -> Collecting : Deliver returned paper
+    Collecting -> Customer : Send physical return notice / e-notice
+  end
+
+  note over PaperVault: 原件管理（实物交换）\n- 原件为法律凭证，通常由行间流转并归档
+end
+
+== 共性 & 差异提示 / Key differences ==
+note left of Clearing
+- 截留（Image Truncation）依赖影像作为法律凭证，需更严格的影像认证与证据链（签名、时间戳、hash）。
+- 实物交换（Physical）依赖纸质原件，处理上依赖物流与人工验印。
+end note
+
+@enduml
