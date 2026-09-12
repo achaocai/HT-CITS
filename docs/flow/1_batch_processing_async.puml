@@ -1,47 +1,46 @@
 @startuml
-title 批次提交与异步质量校验流程（含专用采集设备与移动采集）
+title 批次提交与异步质量校验流程
 
-participant Bank as "Bank\n(Core System / Teller App)"
-participant Device as "Capture Device\n(Scanner / MICR / Mobile SDK)"
-participant Clearing as "Clearing Hub"
+participant Bank as "Bank\n(Core System / Teller App)\n银行（核心系统/柜员端）"
+participant Device as "Capture Device\n(Scanner / MICR / Mobile SDK)\n采集设备（扫描器/MICR/移动SDK）"
+participant Clearing as "Clearing Hub\n清算中心（包含中央质检）"
 
 == 采集与本地预检 ==
-Bank -> Device : Place cheque / invoke capture
-note right of Device: 1) Scan front/back (duplex)\n2) Read MICR (E13B/CMC7)\n3) Capture metadata (device_id, operator_id, dpi)\n4) Local QC: DPI/blur/edge detection\n5) Compute SHA-256 hash of images
-Device --> Bank : Capture Result (images, micr, hash, qc_flags)
+Bank -> Device : Place cheque / invoke capture\n放置支票并触发采集
+note right of Device: 1) Scan front/back (duplex)\n   正/背双面扫描（双面ADF）\n2) Read MICR (E13B/CMC7)\n   读取MICR（E13B/CMC7）\n3) Capture metadata (device_id, operator_id, dpi)\n   捕获元数据（设备ID、操作员、DPI）\n4) Local QC: DPI/blur/edge detection\n   本地质检：DPI/模糊/边缘检测\n5) Compute SHA-256 hash of images\n   计算影像 SHA-256 哈希
+Device --> Bank : Capture Result (images, micr, hash, qc_flags)\n采集结果（影像、MICR、哈希、质检标记）
 
 alt local QC failed
-  Bank -> Bank : Operator prompt / re-scan / manual capture
-  Bank -> Device : Re-scan / adjust settings
-  Device --> Bank : New Capture Result
+  Bank -> Bank : Operator prompt / re-scan / manual capture\n提示操作员/重扫/人工录入
+  Bank -> Device : Re-scan / adjust settings\n重扫/调整设置
+  Device --> Bank : New Capture Result\n新的采集结果
 end
 
-note left: Mobile capture path (optional)
-Bank -> Device : (Mobile App) take photo
-note right of Device: Mobile SDK does guide-overlay, perspective correction, live QC
-Device --> Bank : Capture Result (images, ocr_preview, hash, qc_flags)
+note left: Mobile capture path (optional)\n移动采集路径（可选）
+Bank -> Device : (Mobile App) take photo\n（移动App）拍照采集
+note right of Device: Mobile SDK does guide-overlay, perspective correction, live QC\n移动SDK 提示框、透视矫正、实时质检
+Device --> Bank : Capture Result (images, ocr_preview, hash, qc_flags)\n采集结果（影像、OCR 预览、哈希、质检标记）
 
 == 批次打包与提交 ==
-Bank -> Bank : Package batch (batch_id, transactions[], images, metadata)
-Bank -> Clearing : Capture Batch Submission\n(batch_id, transactions[], images, sig/hash)\nTransport: HTTPS/mTLS or SFTP+Manifest
+Bank -> Bank : Package batch (batch_id, transactions[], images, metadata)\n打包批次（batch_id、交易数组、影像、元数据）
+Bank -> Clearing : Capture Batch Submission\n(batch_id, transactions[], images, sig/hash)\nTransport: HTTPS/mTLS or SFTP+Manifest\n向清算中心提交批次（Capture Batch Submission），传输：HTTPS/mTLS 或 SFTP+Manifest
 
-Clearing -> Bank : Immediate Receipt ACK\n(receipt_id)  <<sync>>
+Clearing -> Bank : Immediate Receipt ACK\n(receipt_id)  <<sync>>\n清算中心返回即时回执（ACK/NACK）
 activate Clearing
 
-Clearing -> Clearing : enqueue for image validation\n(transaction_ids, image_refs)  <<async>>
-note right: Central OCR, DPI check, hash verify, OCR vs handwritten check
+Clearing -> Clearing : enqueue for central validation and OCR\n(note: central OCR, DPI check, hash verify, OCR vs handwritten check, duplicate detection)\n将批次入队由清算中心执行中央校验与OCR（包含DPI检查、哈希校验、OCR与手写比对、重复检测）
 
-Clearing -> Clearing : Image Validation Detail\n(transaction_id, quality_score, ocr_amount, flags)  <<async>>
-Clearing -> Clearing : update transaction status based on QC results
+Clearing -> Clearing : Image Validation Detail\n(transaction_id, quality_score, ocr_amount, flags)\n影像校验明细（交易ID、质量分、OCR金额、标记）
+Clearing -> Clearing : update transaction status based on validation results\n根据校验结果更新交易状态
 
 alt any transaction flagged/rejected
-  Clearing -> Bank : Batch Processing Result (entries)\n(status=REJECTED, reject_code, reason)  <<async>>
-  Bank -> Bank : operator/manual review or rescan (use original device or mobile)
-  Bank -> Device : Re-scan / Retrieve original image / provide annotation
-  Bank -> Clearing : Capture Batch Submission (resubmit)\n(new batch_id or same with correlation)  <<async>>
-  Clearing -> Bank : Immediate Receipt ACK (for resubmit)
+  Clearing -> Bank : Batch Processing Result (entries)\n(status=REJECTED, reject_code, reason)  <<async>>\n批处理结果（逐笔返回：REJECTED / REASON）
+  Bank -> Bank : operator/manual review or rescan (use original device or mobile)\n柜员/操作员人工复核或重扫（使用原设备或移动端）
+  Bank -> Device : Re-scan / Retrieve original image / provide annotation\n重扫/检索原影像/提供标注
+  Bank -> Clearing : Capture Batch Submission (resubmit)\n(new batch_id or same with correlation)  <<async>>\n银行补传批次（新批次或相关批次）
+  Clearing -> Bank : Immediate Receipt ACK (for resubmit)\n清算中心对补传返回回执
 else all accepted
-  Clearing -> Bank : Batch Processing Result (entries)\n(status=ACCEPTED)  <<async>>
+  Clearing -> Bank : Batch Processing Result (entries)\n(status=ACCEPTED)  <<async>>\n全部通过：批处理结果（ACCEPTED）
 end
 
 deactivate Clearing
